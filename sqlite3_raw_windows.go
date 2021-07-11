@@ -9,6 +9,8 @@
 package sqlite3
 
 import (
+	"fmt"
+	"strconv"
 	"unsafe"
 )
 
@@ -189,9 +191,12 @@ func sqlite3_bind_int(stmt sqlite3_stmt, ord int, data int32) int {
 }
 
 func sqlite3_bind_double(stmt sqlite3_stmt, ord int, data float64) int {
+	return sqlite3_bind_text(stmt, ord, fmt.Sprint(data))
+	//bug todo
 	retInt, _, _ := dll_sqlite3_bind_double.Call(
 		uintptr(stmt),
 		uintptr(ord),
+		// uintptr(math.Float64bits(data)),
 		uintptr(data),
 	)
 	return int(retInt)
@@ -286,6 +291,10 @@ func sqlite3_column_int64(stmt sqlite3_stmt, index int) int64 {
 }
 
 func sqlite3_column_double(stmt sqlite3_stmt, index int) float64 {
+	text := sqlite3_column_text(stmt, index)
+	ret, _ := strconv.ParseFloat(text, 64)
+	return ret
+	//bug todo
 	intPtr, _, _ := dll_sqlite3_column_double.Call(
 		uintptr(stmt),
 		uintptr(index),
